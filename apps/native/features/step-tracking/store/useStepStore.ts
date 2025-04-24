@@ -14,7 +14,7 @@ type StepStore = {
   reset: () => void;
 };
 
-export const useStepStore = create<StepStore>((set, get) => ({
+const useStepStore = create<StepStore>((set, get) => ({
   today: 0,
   week: [],
   setToday: (steps: number) => set({ today: steps }),
@@ -25,3 +25,6 @@ export const useStepStore = create<StepStore>((set, get) => ({
   },
   reset: () => set({ today: 0, week: [] }),
 }));
+
+export { useStepStore };
+export type { Step };
