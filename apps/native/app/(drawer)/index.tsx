@@ -1,22 +1,73 @@
-import { authClient } from "@/lib/auth-client";
-import { useQuery } from "@tanstack/react-query";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useState, useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { Pedometer } from "expo-sensors";
+import type { PermissionResponse } from "expo-sensors/build/Pedometer";
 
-import { Container } from "@/components/container";
-import { SignIn } from "@/components/sign-in";
-import { SignUp } from "@/components/sign-up";
-import { queryClient, trpc } from "@/utils/trpc";
+type Permission = PermissionResponse;
 
-export default function Home() {
-  const healthCheck = useQuery(trpc.healthCheck.queryOptions());
-  const privateData = useQuery(trpc.privateData.queryOptions());
-  const { data: session } = authClient.useSession();
+export default function App() {
+  const [permission, setPermission] = useState<Permission | null>(null);
+  const [isPedometerAvailable, setIsPedometerAvailable] = useState("checking");
+  const [pastStepCount, setPastStepCount] = useState(0);
+  const [currentStepCount, setCurrentStepCount] = useState(0);
+
+  useEffect(() => {
+    const subscribe = async () => {
+      const isAvailable = await Pedometer.isAvailableAsync();
+      setIsPedometerAvailable(String(isAvailable));
+
+      if (isAvailable) {
+        const end = new Date();
+        const start = new Date();
+        start.setDate(end.getDate() - 1);
+
+        const pastStepCountResult = await Pedometer.getStepCountAsync(
+          start,
+          end
+        );
+        if (pastStepCountResult) {
+          setPastStepCount(pastStepCountResult.steps);
+        }
+
+        return Pedometer.watchStepCount((result) => {
+          setCurrentStepCount(result.steps);
+        });
+      }
+    };
+
+    const subscription = subscribe();
+    return () => {
+      subscription.then((subscription) => {
+        subscription?.remove();
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    async function getPermission() {
+      const permission = await Pedometer.requestPermissionsAsync();
+      return permission;
+    }
+    getPermission().then((permission) => {
+      setPermission(permission);
+    });
+  }, []);
 
   return (
-    <Container>
-      <ScrollView className="flex-1">
-        <Text>Hello</Text>
-      </ScrollView>
-    </Container>
+    <View style={styles.container}>
+      <Text>Permission: {permission?.status}</Text>
+      <Text>Pedometer.isAvailableAsync(): {isPedometerAvailable}</Text>
+      <Text>Steps taken in the last 24 hours: {pastStepCount}</Text>
+      <Text>Walk! And watch this go up: {currentStepCount}</Text>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 15,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
