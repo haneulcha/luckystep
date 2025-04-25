@@ -18,6 +18,12 @@
           "sensors": ["pedometer"],
           "motionPermissions": "Allow $(PRODUCT_NAME) to access your device motion"
         }
+      ],
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "NSHealthShareUsageDescription": "Your own custom usage description"
+        }
       ]
     ],
     "experiments": {

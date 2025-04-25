@@ -1,42 +1,73 @@
-import BrokenHealthKit, {
-  type HealthValue,
-  type HealthKitPermissions,
-} from "react-native-health";
+import Healthkit, {
+  HKQuantityTypeIdentifier,
+  useMostRecentQuantitySample,
+  HKUnits,
+  useIsHealthDataAvailable,
+  useHealthkitAuthorization,
+  HKAuthorizationRequestStatus,
+  HKStatisticsOptions,
+  useStatisticsForQuantity,
+  useSources,
+} from "@kingstinct/react-native-healthkit";
+import { useEffect, useState } from "react";
 
-const NativeModules = require("react-native").NativeModules;
-const AppleHealthKit = NativeModules.AppleHealthKit as typeof BrokenHealthKit;
-AppleHealthKit.Constants = BrokenHealthKit.Constants;
+const useGetStepCount = () => {
+  const [currentTimeStamp, setCurrentTimeStamp] = useState(new Date());
+  const [authStatus, requestAuth] = useHealthkitAuthorization([
+    HKQuantityTypeIdentifier.stepCount,
+  ]);
+  const isAvailable = useIsHealthDataAvailable();
+  const steps = useMostRecentQuantitySample(
+    HKQuantityTypeIdentifier.stepCount,
+    HKUnits.Count
+  );
 
-/* Permission options */
-const permissions = {
-  permissions: {
-    read: [AppleHealthKit.Constants.Permissions.Steps],
-  },
-} as HealthKitPermissions;
+  const statistics = useStatisticsForQuantity(
+    HKQuantityTypeIdentifier.stepCount,
+    [HKStatisticsOptions.cumulativeSum],
+    new Date("2025-04-25T00:00:00Z"),
+    currentTimeStamp
+  );
+  // const samples = useQuantitySamples(
+  //   HKQuantityTypeIdentifier.stepCount,
+  //   new Date("2025-04-24T00:00:00Z"),
+  //   new Date("2025-04-25T00:00:00Z")
+  // );
 
-const appleHealthKitInit = async () => {
-  console.log("init start");
-  AppleHealthKit.initHealthKit(permissions, (error: string) => {
-    /* Called after we receive a response from the system */
-    console.log("initHealthKit", error);
-    if (error) {
-      console.log("[ERROR] Cannot grant permissions!");
-    }
+  useEffect(() => {
+    if (!isAvailable) return;
+    if (
+      authStatus === HKAuthorizationRequestStatus.shouldRequest ||
+      authStatus === HKAuthorizationRequestStatus.unknown
+    )
+      return;
 
-    /* Can now read or write to HealthKit */
-
-    const options = {
-      startDate: new Date(2020, 1, 1).toISOString(),
-    };
-
-    AppleHealthKit.getStepCount(
-      options,
-      (error: string, results: HealthValue) => {
-        console.log("error", error);
-        console.log("results", results);
+    console.log("subscribe");
+    const unsubscribe = Healthkit.subscribeToChanges(
+      HKQuantityTypeIdentifier.stepCount,
+      () => {
+        console.log("step count changed");
+        setCurrentTimeStamp(new Date());
       }
     );
-  });
+
+    return () => {
+      Promise.resolve(unsubscribe).then((unsubscribe) => unsubscribe());
+    };
+  }, [isAvailable, authStatus]);
+
+  useEffect(() => {
+    if (!isAvailable) return;
+    if (authStatus !== HKAuthorizationRequestStatus.shouldRequest) return;
+    requestAuth().then((status) => {
+      console.log({ status });
+      if (status === HKAuthorizationRequestStatus.shouldRequest) {
+        // setHasRequestedAuthorization(true);
+      }
+    });
+  }, [authStatus, isAvailable, requestAuth]);
+  // console.log({ steps, isAvailable, statistics });
+  return { steps, isAvailable, statistics: statistics?.sumQuantity };
 };
 
-export { appleHealthKitInit };
+export default useGetStepCount;
