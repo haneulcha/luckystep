@@ -16,9 +16,7 @@
     "lint": "turbo lint",
     "format": "turbo format"
   },
-  "dependencies": {
-    "react-native-health": "^1.19.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "husky": "^9.1.7",

@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "my-better-t-app",
-    "slug": "my-better-t-app",
+    "name": "LuckyStep",
+    "slug": "lucky-step",
     "version": "1.0.0",
-    "scheme": "my-better-t-app",
+    "scheme": "lucky-step",
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -36,14 +36,15 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.amanvarshney01.mybettertapp"
+      "bundleIdentifier": "com.chadon.luckystep",
+      "appleTeamId": "3NUG7KWWZD"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.amanvarshney01.mybettertapp"
+      "package": "com.chadon.luckystep"
     }
   }
 }

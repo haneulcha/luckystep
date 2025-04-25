@@ -1,21 +1,38 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View } from "react-native";
 import { Pedometer } from "expo-sensors";
 import type { PermissionResponse } from "expo-sensors/build/Pedometer";
 import useStepTracker from "@/features/step-tracking/hook/useStepTracker";
+import { appleHealthKitInit } from "@/features/step-tracking/service/ios-health-kit";
+import AppleHealthKit, {
+  type HealthValue,
+  type HealthKitPermissions,
+} from "react-native-health";
+
+const permissions = {
+  permissions: {
+    read: [AppleHealthKit.Constants.Permissions.Steps],
+  },
+} as HealthKitPermissions;
+
+AppleHealthKit.initHealthKit(permissions, (error: string) => {
+  console.log("initHealthKit", error);
+});
 
 export default function App() {
-  const { permission, pastStepCount, currentStepCount, pastStepCounts, isPedometerAvailable } =
-    useStepTracker();
+  // const { permission, pastStepCount, currentStepCount, pastStepCounts, isPedometerAvailable } =
+  //   useStepTracker();
+
+  const handleHealthKit = async () => {
+    console.log("start");
+    await appleHealthKitInit();
+    console.log("end");
+  };
 
   return (
     <View style={styles.container}>
-      <Text>isPedometerAvailable: {isPedometerAvailable}</Text>
-      <Text>Permission: {permission?.status}</Text>
-
-      <Text>Steps taken in the last 24 hours: {pastStepCount}</Text>
-      <Text>Walk! And watch this go up: {currentStepCount}</Text>
-      <Text>Past step counts: {JSON.stringify(pastStepCounts)}</Text>
+      <Text>isPedometerAvailable: </Text>
+      <Button title="HealthKit" onPress={handleHealthKit} />
     </View>
   );
 }
