@@ -6,7 +6,10 @@ const checkPedometerAvailability = async () => {
 };
 
 const getPermissions = async () => {
-  const permission = await Pedometer.getPermissionsAsync();
+  let permission = await Pedometer.getPermissionsAsync();
+  if (permission.canAskAgain) {
+    permission = await Pedometer.requestPermissionsAsync();
+  }
   return permission;
 };
 
