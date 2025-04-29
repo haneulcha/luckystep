@@ -8,7 +8,7 @@ const useStepTracker = () => {
   const [isPedometerAvailable, setIsPedometerAvailable] = useState(false);
   const [permission, setPermission] = useState<PermissionResponse | null>(null);
 
-  const [pastStepCount, setPastStepCount] = useState(0);
+  const [todayStepCount, setTodayStepCount] = useState(0);
   const [currentStepCount, setCurrentStepCount] = useState(0);
   const [pastStepCounts, setPastStepCounts] = useState<
     { date: string; steps: number }[]
@@ -20,7 +20,6 @@ const useStepTracker = () => {
     (async () => {
       const isAvailable = await checkPedometerAvailability();
       setIsPedometerAvailable(isAvailable);
-      console.log({ isAvailable });
       if (!isAvailable) {
         // TODO: show error
         return;
@@ -39,11 +38,12 @@ const useStepTracker = () => {
     const subscribe = async () => {
       const end = new Date();
       const start = new Date();
-      start.setDate(end.getDate() - 1);
+      start.setHours(0, 0, 0, 0);
 
+      console.log({ start, end });
       const pastStepCountResult = await Pedometer.getStepCountAsync(start, end); // iOS only
       if (pastStepCountResult) {
-        setPastStepCount(pastStepCountResult.steps);
+        setTodayStepCount(pastStepCountResult.steps);
       }
 
       // last 7 days
@@ -51,8 +51,10 @@ const useStepTracker = () => {
         const today = new Date();
         const end = new Date();
         end.setDate(today.getDate() - i);
+        end.setHours(23, 59, 59, 999);
         const start = new Date();
         start.setDate(end.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
         return { start, end };
       });
 
@@ -85,7 +87,7 @@ const useStepTracker = () => {
 
   return {
     isPedometerAvailable,
-    pastStepCount,
+    todayStepCount,
     currentStepCount,
     permission,
     pastStepCounts,

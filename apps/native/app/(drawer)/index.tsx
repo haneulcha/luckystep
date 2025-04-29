@@ -8,7 +8,7 @@ import useGetStepCount from "@/features/step-tracking/service/ios-health-kit";
 export default function App() {
   const {
     permission,
-    pastStepCount,
+    todayStepCount,
     currentStepCount,
     pastStepCounts,
     isPedometerAvailable,
@@ -18,13 +18,28 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <Text>expo-sensors</Text>
+      <Text>steps: {todayStepCount}</Text>
+      <Text>statistics: {currentStepCount}</Text>
+      <>
+        pastStepCounts:{" "}
+        <View>
+          {pastStepCounts.map((step) => {
+            return (
+              <Text key={step.date}>
+                {step.date} / {step.steps}
+              </Text>
+            );
+          })}
+        </View>
+      </>
+      <Text>isAvailable: {isPedometerAvailable?.toString()}</Text>
+      <Text>--------------------------------</Text>
+      <Text>ios-health-kit</Text>
       <Text>steps: {steps?.quantity}</Text>
       <Text>statistics: {statistics?.quantity}</Text>
       <Text>isAvailable: {isAvailable?.toString()}</Text>
       <Text>--------------------------------</Text>
-      <Text>pastStepCount: {pastStepCount}</Text>
-      <Text>currentStepCount: {currentStepCount}</Text>
-      <Text>pastStepCounts: {pastStepCounts.length}</Text>
     </View>
   );
 }

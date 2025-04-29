@@ -7,7 +7,6 @@ import Healthkit, {
   HKAuthorizationRequestStatus,
   HKStatisticsOptions,
   useStatisticsForQuantity,
-  useSources,
 } from "@kingstinct/react-native-healthkit";
 import { useEffect, useState } from "react";
 
@@ -25,7 +24,7 @@ const useGetStepCount = () => {
   const statistics = useStatisticsForQuantity(
     HKQuantityTypeIdentifier.stepCount,
     [HKStatisticsOptions.cumulativeSum],
-    new Date("2025-04-25T00:00:00Z"),
+    new Date(new Date().setHours(0, 0, 0, 0)),
     currentTimeStamp
   );
   // const samples = useQuantitySamples(
@@ -42,7 +41,6 @@ const useGetStepCount = () => {
     )
       return;
 
-    console.log("subscribe");
     const unsubscribe = Healthkit.subscribeToChanges(
       HKQuantityTypeIdentifier.stepCount,
       () => {
