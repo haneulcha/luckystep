@@ -1,21 +1,23 @@
 import { Pedometer } from "expo-sensors";
 import type { PermissionResponse } from "expo-sensors/build/Pedometer";
 import { useEffect, useState } from "react";
-import { checkPedometerAvailability, getPermissions } from "../service/sensor";
+import type { StepCount } from "../types";
+import { checkPedometerAvailability, getPermissions } from "../services/sensor";
+import { getDayRange, getUntilNow } from "../utils";
 
 // TODO: use useSyncExternalStore
+// 기기 기준으로 걸음 수 측정 (워치 등 미포함)
 const useStepTracker = () => {
   const [isPedometerAvailable, setIsPedometerAvailable] = useState(false);
   const [permission, setPermission] = useState<PermissionResponse | null>(null);
 
-  const [todayStepCount, setTodayStepCount] = useState(0);
   const [currentStepCount, setCurrentStepCount] = useState(0);
-  const [pastStepCounts, setPastStepCounts] = useState<
-    { date: string; steps: number }[]
-  >([]);
+  const [todayStepCount, setTodayStepCount] = useState<StepCount | null>(null);
+  const [pastStepCounts, setPastStepCounts] = useState<StepCount[]>([]);
 
   const canCountStep = isPedometerAvailable && permission?.status === "granted";
 
+  /** 걸음 수 측정 가능 여부 및 권한 확인 */
   useEffect(() => {
     (async () => {
       const isAvailable = await checkPedometerAvailability();
@@ -24,54 +26,49 @@ const useStepTracker = () => {
         // TODO: show error
         return;
       }
-    })();
 
-    (async () => {
       const permission = await getPermissions();
       setPermission(permission);
     })();
   }, []);
 
+  /** 오늘 걸음 수 측정 */
   useEffect(() => {
     if (!canCountStep) return;
 
-    const subscribe = async () => {
-      const end = new Date();
-      const start = new Date();
-      start.setHours(0, 0, 0, 0);
+    const { start, end } = getUntilNow();
+    Pedometer.getStepCountAsync(start, end).then((result) => {
+      setTodayStepCount({ date: { start, end }, steps: result.steps });
+    });
+  }, [canCountStep]);
 
-      console.log({ start, end });
-      const pastStepCountResult = await Pedometer.getStepCountAsync(start, end); // iOS only
-      if (pastStepCountResult) {
-        setTodayStepCount(pastStepCountResult.steps);
-      }
+  /** 과거 7일 걸음 수 */
+  useEffect(() => {
+    if (!canCountStep) return;
 
-      // last 7 days
-      const dates = Array.from({ length: 7 }, (_, i) => {
-        const today = new Date();
-        const end = new Date();
-        end.setDate(today.getDate() - i);
-        end.setHours(23, 59, 59, 999);
-        const start = new Date();
-        start.setDate(end.getDate() - 1);
-        start.setHours(0, 0, 0, 0);
-        return { start, end };
-      });
-
-      const pastStepCounts = await Promise.all(
-        dates.map(async (date) => {
+    (async () => {
+      const results = await Promise.all(
+        getDayRange(7).map(async ({ start, end }) => {
+          // iOS only
           const pastStepCountResult = await Pedometer.getStepCountAsync(
-            date.start,
-            date.end
-          ); // iOS only
+            start,
+            end
+          );
           return {
-            date: date.start.toISOString().split("T")[0],
-            day: date.start.toLocaleDateString("ko-KR", { weekday: "short" }),
+            date: { start, end },
             steps: pastStepCountResult?.steps ?? 0,
           };
         })
       );
-      setPastStepCounts(pastStepCounts);
+      setPastStepCounts(results);
+    })();
+  }, [canCountStep]);
+
+  /** 실시간 걸음 수 측정 */
+  useEffect(() => {
+    if (!canCountStep) return;
+
+    const subscribe = async () => {
       return Pedometer.watchStepCount((result) => {
         setCurrentStepCount(result.steps);
       });
@@ -89,7 +86,6 @@ const useStepTracker = () => {
     isPedometerAvailable,
     todayStepCount,
     currentStepCount,
-    permission,
     pastStepCounts,
   };
 };

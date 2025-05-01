@@ -1,44 +1,55 @@
-import { useState, useEffect } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
-import { Pedometer } from "expo-sensors";
-import type { PermissionResponse } from "expo-sensors/build/Pedometer";
+import { StyleSheet, Text, View } from "react-native";
 import useStepTracker from "@/features/step-tracking/hook/useStepTracker";
-import useGetStepCount from "@/features/step-tracking/service/ios-health-kit";
+import useGetStepCount from "@/features/step-tracking/hook/useStepCounter";
 
 export default function App() {
   const {
-    permission,
+    isPedometerAvailable,
     todayStepCount,
     currentStepCount,
     pastStepCounts,
-    isPedometerAvailable,
   } = useStepTracker();
 
-  const { steps, isAvailable, statistics } = useGetStepCount();
+  const {
+    isAvailable,
+    stepCount: stepCountHealthKit,
+    pastStepCounts: pastStepCountsHealthKit,
+  } = useGetStepCount();
 
   return (
     <View style={styles.container}>
       <Text>expo-sensors</Text>
-      <Text>steps: {todayStepCount}</Text>
-      <Text>statistics: {currentStepCount}</Text>
+      <Text>연동 여부: {isPedometerAvailable?.toString()}</Text>
+      <Text>현재 걸음 수: {currentStepCount}</Text>
+      <Text>오늘 걸음 수: {todayStepCount?.steps}</Text>
       <>
-        pastStepCounts:{" "}
+        <Text>과거 7일 걸음 수: </Text>
         <View>
           {pastStepCounts.map((step) => {
             return (
-              <Text key={step.date}>
-                {step.date} / {step.steps}
+              <Text key={step.date.start.toISOString()}>
+                {step.date.start.toISOString()} / {step.steps}
               </Text>
             );
           })}
         </View>
       </>
-      <Text>isAvailable: {isPedometerAvailable?.toString()}</Text>
       <Text>--------------------------------</Text>
-      <Text>ios-health-kit</Text>
-      <Text>steps: {steps?.quantity}</Text>
-      <Text>statistics: {statistics?.quantity}</Text>
-      <Text>isAvailable: {isAvailable?.toString()}</Text>
+      <Text>HealthKit</Text>
+      <Text>연동 여부: {isAvailable?.toString()}</Text>
+      <Text>오늘 걸음 수: {stepCountHealthKit?.steps}</Text>
+      <>
+        <Text>과거 7일 걸음 수: </Text>
+        <View>
+          {pastStepCountsHealthKit.map((step) => {
+            return (
+              <Text key={step.date.start.toISOString()}>
+                {step.date.start.toISOString()} / {step.steps}
+              </Text>
+            );
+          })}
+        </View>
+      </>
       <Text>--------------------------------</Text>
     </View>
   );
