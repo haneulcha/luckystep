@@ -1,6 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
+import { useEffect, useState } from "react";
+import {
+  stepTrackingStatus,
+  getStepCount,
+} from "@/features/step-tracking/services";
+import { getUntilNow } from "@/features/step-tracking/utils";
 import useStepTracker from "@/features/step-tracking/hook/useStepTracker";
-import useGetStepCount from "@/features/step-tracking/hook/useStepCounter";
 
 export default function App() {
   const {
@@ -8,49 +13,33 @@ export default function App() {
     todayStepCount,
     currentStepCount,
     pastStepCounts,
-  } = useStepTracker();
+  } = useStepTracker(); // sensor
+  const [stepCount, setStepCount] = useState<number>(); // healthkit
 
-  const {
-    isAvailable,
-    stepCount: stepCountHealthKit,
-    pastStepCounts: pastStepCountsHealthKit,
-  } = useGetStepCount();
+  useEffect(() => {
+    (async () => {
+      const status = await stepTrackingStatus();
+      if (!status) return;
+
+      const { start, end } = getUntilNow();
+      const stepCount = await getStepCount({ from: start, to: end });
+      setStepCount(stepCount);
+    })();
+  }, []);
 
   return (
     <View style={styles.container}>
+      <Text>healthkit</Text>
+      <Text>{stepCount ?? "not available"}</Text>
+
+      <Text>--------------------------------</Text>
       <Text>expo-sensors</Text>
-      <Text>연동 여부: {isPedometerAvailable?.toString()}</Text>
-      <Text>현재 걸음 수: {currentStepCount}</Text>
-      <Text>오늘 걸음 수: {todayStepCount?.steps}</Text>
-      <>
-        <Text>과거 7일 걸음 수: </Text>
-        <View>
-          {pastStepCounts.map((step) => {
-            return (
-              <Text key={step.date.start.toISOString()}>
-                {step.date.start.toISOString()} / {step.steps}
-              </Text>
-            );
-          })}
-        </View>
-      </>
-      <Text>--------------------------------</Text>
-      <Text>HealthKit</Text>
-      <Text>연동 여부: {isAvailable?.toString()}</Text>
-      <Text>오늘 걸음 수: {stepCountHealthKit?.steps}</Text>
-      <>
-        <Text>과거 7일 걸음 수: </Text>
-        <View>
-          {pastStepCountsHealthKit.map((step) => {
-            return (
-              <Text key={step.date.start.toISOString()}>
-                {step.date.start.toISOString()} / {step.steps}
-              </Text>
-            );
-          })}
-        </View>
-      </>
-      <Text>--------------------------------</Text>
+      <Text>{isPedometerAvailable ? "available" : "not available"}</Text>
+      <Text>{currentStepCount}</Text>
+      <Text>{todayStepCount?.steps}</Text>
+      <Text>
+        {pastStepCounts.map((stepCount) => stepCount.steps).join(", ")}
+      </Text>
     </View>
   );
 }

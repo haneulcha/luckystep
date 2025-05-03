@@ -3,7 +3,7 @@ type StepCount = {
     start: Date;
     end: Date;
   };
-  steps: number;
+  steps?: number;
 };
 
 export type { StepCount };
