@@ -8,6 +8,8 @@ import { useTimer } from 'react-timer-hook';
 dayjs.extend(utc);
 dayjs.extend(duration);
 
+type Phase = 'in-progress' | 'waiting';
+
 const data = {
   round: 410,
   prize: 20_000_000,
@@ -21,10 +23,19 @@ const data = {
   },
 };
 
+const getPhase = (startDate: string, endDate: string): Phase => {
+  const now = dayjs();
+  if (now.isAfter(dayjs(startDate)) && now.isBefore(dayjs(endDate))) {
+    return 'in-progress';
+  }
+  return 'waiting';
+};
+
 const TopBanner = () => {
+  const phase = getPhase(data.startDate, data.endDate);
   const { days, hours, minutes, seconds } = useTimer({
     expiryTimestamp: dayjs(data.next.startDate).toDate(),
-    autoStart: dayjs().isBefore(dayjs(data.next.startDate)),
+    autoStart: phase === 'waiting',
   });
 
   return (
@@ -33,12 +44,30 @@ const TopBanner = () => {
         <Ionicons name="flower-outline" size={24} color="black" />
         <Text className="font-bold text-lg text-mono-10">LUCKYSTEPS</Text>
       </View>
-      <View className="rounded-lg bg-violet-40 p-4">
-        <Text className="text-center font-bold text-mono-90 text-sm">{data.round}회차</Text>
-        <Text className="text-center font-extrabold text-mono-90 text-xl">{data.prize.toLocaleString()}원</Text>
-        <Text className="text-center font-bold text-mono-90 text-sm tabular-nums">
-          {days}일 {hours}시간 {minutes}분 {seconds}초
-        </Text>
+
+      <View className="rounded-lg bg-violet-40">
+        <View className="mt-2 items-center py-4">
+          <Text className="text-center font-bold text-mono-90 text-sm">{data.round}회차</Text>
+          <Text className="text-center font-extrabold text-mono-90 text-xl">{data.prize.toLocaleString()}원</Text>
+          <Text className="text-center font-bold text-mono-90 text-sm tabular-nums">
+            {days}일 {hours}시간 {minutes}분 {seconds}초
+          </Text>
+        </View>
+
+        <View className="h-px w-full bg-mono-90" />
+
+        <View className="flex-row items-center gap-2">
+          {/* TODO: Link */}
+          <View className="flex-1 flex-row items-center justify-center gap-2 border-mono-90 border-r p-4">
+            <Ionicons name="trophy-outline" size={20} color="#F5F5F5" />
+            <Text className="text-center font-bold text-mono-90 text-sm">명예의 전당</Text>
+          </View>
+          {/* TODO: Link */}
+          <View className="flex-1 flex-row items-center justify-center gap-2 p-4">
+            <Ionicons name="cash-outline" size={20} color="#F5F5F5" />
+            <Text className="text-center font-bold text-mono-90 text-sm">당첨금 안내</Text>
+          </View>
+        </View>
       </View>
     </View>
   );
