@@ -11,6 +11,16 @@
 		--secondary: 240 4.8% 95.9%;
 		--secondary-foreground: 240 5.9% 10%;
 		--destructive: 0 84.2% 60.2%;
+
+		--mono-10: #0D0E0D;
+		--mono-20: #1F221F;
+		--mono-50: #383D38;
+		--mono-60: #E0E1E0;
+		--mono-90: #F5F5F5;
+
+		--blue-50: #094D92;
+		--red-50: #DD1C1A;
+		--main-50: #F0C808;
 	}
 
 	.dark:root {
@@ -21,5 +31,15 @@
 		--secondary: 240 3.7% 15.9%;
 		--secondary-foreground: 0 0% 98%;
 		--destructive: 0 72% 51%;
+
+		--mono-10: #F5F5F5;
+		--mono-20: #E0E1E0;
+		--mono-50: #383D38;
+		--mono-60: #1F221F;
+		--mono-90: #0D0E0D;
+
+		--blue-50: #094D92;
+		--red-50: #DD1C1A;
+		--main-50: #F0C808;
 	}
 }
