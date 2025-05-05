@@ -39,33 +39,33 @@ const TopBanner = () => {
   });
 
   return (
-    <View className="w-full gap-4 bg-gelb-40 p-4">
+    <View className="w-full gap-4 bg-gelb-40 p-6">
       <View className="mt-1 flex-row items-center gap-2">
-        <Ionicons name="flower-outline" size={24} color="black" />
-        <Text className="font-bold text-lg text-mono-10">LUCKYSTEPS</Text>
+        <Ionicons name="flower-outline" size={24} color="white" />
+        <Text className="font-extrabold text-mono-10 text-xl">LUCKYSTEPS</Text>
       </View>
 
-      <View className="rounded-lg bg-violet-40">
+      <View className="rounded-lg bg-gelb-70">
         <View className="mt-2 items-center py-4">
-          <Text className="text-center font-bold text-mono-90 text-sm">{data.round}회차</Text>
-          <Text className="text-center font-extrabold text-mono-90 text-xl">{data.prize.toLocaleString()}원</Text>
-          <Text className="text-center font-bold text-mono-90 text-sm tabular-nums">
+          <Text className="text-center font-bold text-mono-10 text-sm">{data.round}회차</Text>
+          <Text className="text-center font-extrabold text-mono-10 text-xl">{data.prize.toLocaleString()}원</Text>
+          <Text className="text-center font-bold text-mono-10 text-sm tabular-nums">
             {days}일 {hours}시간 {minutes}분 {seconds}초
           </Text>
         </View>
 
-        <View className="h-px w-full bg-mono-90" />
+        <View className="h-px w-full bg-gelb-30" />
 
         <View className="flex-row items-center gap-2">
           {/* TODO: Link */}
-          <View className="flex-1 flex-row items-center justify-center gap-2 border-mono-90 border-r p-4">
+          <View className="flex-1 flex-row items-center justify-center gap-2 border-gelb-30 border-r p-4">
             <Ionicons name="trophy-outline" size={20} color="#F5F5F5" />
-            <Text className="text-center font-bold text-mono-90 text-sm">명예의 전당</Text>
+            <Text className="text-center font-bold text-mono-10 text-sm">명예의 전당</Text>
           </View>
           {/* TODO: Link */}
           <View className="flex-1 flex-row items-center justify-center gap-2 p-4">
             <Ionicons name="cash-outline" size={20} color="#F5F5F5" />
-            <Text className="text-center font-bold text-mono-90 text-sm">당첨금 안내</Text>
+            <Text className="text-center font-bold text-mono-10 text-sm">당첨금 안내</Text>
           </View>
         </View>
       </View>
