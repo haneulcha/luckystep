@@ -1,9 +1,10 @@
-import { Pedometer } from "expo-sensors";
-import type { PermissionResponse } from "expo-sensors/build/Pedometer";
-import { useEffect, useState } from "react";
-import type { StepCount } from "../types";
-import { checkPedometerAvailability, getPermissions } from "../services/sensor";
-import { getDayRange, getUntilNow } from "../utils";
+import { Pedometer } from 'expo-sensors';
+import type { PermissionResponse } from 'expo-sensors/build/Pedometer';
+import { useEffect, useState } from 'react';
+import { getStepCount as getStepCountFromHealthKit, stepTrackingStatus } from '../services';
+import { checkPedometerAvailability, getPermissions, getStepCount as getStepCountFromSensor } from '../services/sensor';
+import type { StepCount } from '../types';
+import { getDayRange, getUntilNow } from '../utils';
 
 // TODO: use useSyncExternalStore
 // 기기 기준으로 걸음 수 측정 (워치 등 미포함)
@@ -15,7 +16,9 @@ const useStepTracker = () => {
   const [todayStepCount, setTodayStepCount] = useState<StepCount | null>(null);
   const [pastStepCounts, setPastStepCounts] = useState<StepCount[]>([]);
 
-  const canCountStep = isPedometerAvailable && permission?.status === "granted";
+  const [cumulativeStepCount, setCumulativeStepCount] = useState<number>(0);
+
+  const canCountStep = isPedometerAvailable && permission?.status === 'granted';
 
   /** 걸음 수 측정 가능 여부 및 권한 확인 */
   useEffect(() => {
@@ -50,15 +53,12 @@ const useStepTracker = () => {
       const results = await Promise.all(
         getDayRange(7).map(async ({ start, end }) => {
           // iOS only
-          const pastStepCountResult = await Pedometer.getStepCountAsync(
-            start,
-            end
-          );
+          const pastStepCountResult = await Pedometer.getStepCountAsync(start, end);
           return {
             date: { start, end },
             steps: pastStepCountResult?.steps ?? 0,
           };
-        })
+        }),
       );
       setPastStepCounts(results);
     })();
@@ -82,11 +82,23 @@ const useStepTracker = () => {
     };
   }, [canCountStep]);
 
+  useEffect(() => {
+    (async () => {
+      const status = await stepTrackingStatus();
+      if (!status) return;
+
+      const { start, end } = getUntilNow();
+      const stepCount = await getStepCountFromHealthKit({ from: start, to: end });
+      setCumulativeStepCount(stepCount ?? 0);
+    })();
+  }, []);
+
   return {
     isPedometerAvailable,
     todayStepCount,
     currentStepCount,
     pastStepCounts,
+    cumulativeStepCount: Math.max(cumulativeStepCount, todayStepCount?.steps ?? 0) + currentStepCount,
   };
 };
 

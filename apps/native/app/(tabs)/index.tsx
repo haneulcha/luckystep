@@ -37,16 +37,6 @@ export default function App() {
           <DailyMissionCard />
           <SocialCard />
         </View>
-
-        {/* <Text>healthkit</Text>
-        <Text>{stepCount ?? 'not available'}</Text>
-
-        <Text>--------------------------------</Text>
-        <Text>expo-sensors</Text>
-        <Text>{isPedometerAvailable ? 'available' : 'not available'}</Text>
-        <Text>{currentStepCount}</Text>
-        <Text>{todayStepCount?.steps}</Text>
-        <Text>{pastStepCounts.map((stepCount) => stepCount.steps).join(', ')}</Text> */}
       </ScrollView>
     </SafeAreaView>
   );

@@ -40,7 +40,7 @@ const Speetto = {
     icon: {
       name: 'accessibility',
       color: 'white',
-      bgColor: 'bg-blau-50',
+      bgColor: 'bg-indigo-50',
     },
   },
   '30': {

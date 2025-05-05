@@ -22,7 +22,7 @@ const ListItem = ({ title, description, icon, action }: ListItemProps) => {
 
       <View className="flex-1 justify-center gap-2">
         <Text className="font-bold text-md text-mono-90">{title}</Text>
-        <Text className="text-mono-70 text-sm">{description}</Text>
+        <Text className="font-semibold text-mono-70 text-sm">{description}</Text>
       </View>
 
       {action}

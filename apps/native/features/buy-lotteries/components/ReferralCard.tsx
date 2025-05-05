@@ -1,22 +1,17 @@
 import Card from '@/features/shared/ui/Card';
-import { Ionicons } from '@expo/vector-icons';
-import { Button, Text, View } from 'react-native';
+import ListItem from '@/features/shared/ui/ListItem';
+import { Button, View } from 'react-native';
 
 const ReferralCard = () => {
   return (
     <Card title="친구 미션">
       <View className="flex-row items-center gap-4">
-        <View className="size-16 flex-row items-center justify-center gap-2 rounded-lg bg-gelb-60">
-          <Ionicons name="people" size={24} color="white" />
-        </View>
-
-        <View className="flex-1 justify-center gap-2">
-          <Text className="font-bold text-md text-mono-90">친구 데려오기</Text>
-          <Text className="text-mono-70 text-sm">친구도 나도 50장!</Text>
-        </View>
-
-        {/* TODO: Link */}
-        <Button title="초대하기" />
+        <ListItem
+          title="친구 데려오기"
+          description="친구도 나도 50장!"
+          icon={{ name: 'people', color: 'white', bgColor: 'bg-indigo-30' }}
+          action={<Button title="초대하기" />} // TODO: 초대하기 버튼 추가
+        />
       </View>
     </Card>
   );
