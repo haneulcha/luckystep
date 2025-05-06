@@ -70,45 +70,47 @@ const TopBanner = () => {
   }, [diff, phase, hours, minutes, seconds]);
 
   return (
-    <View className="w-full gap-4 bg-gelb-40 p-6">
-      {/* 타이틀 */}
-      <View className="mt-1 flex-row items-center gap-2">
-        <Ionicons name="flower-outline" size={24} color="white" />
-        <Text className="font-extrabold text-mono-10 text-xl">LUCKYSTEPS</Text>
-      </View>
-
-      <View className="rounded-lg bg-gelb-70">
-        <View className="mt-2 items-center gap-1 py-5">
-          {/* 회차 */}
-          <View className="flex-row items-center gap-2">
-            <Text className="text-center font-bold text-md text-mono-10">{data.round}회차</Text>
-            <Text className={`rounded-full px-2.5 py-1.5 font-bold text-mono-10 text-xs ${phaseMap[phase].color}`}>
-              {phaseMap[phase].label}
-            </Text>
-          </View>
-
-          {/* 당첨금 */}
-          <Text className="text-center font-extrabold text-3xl text-mono-10">{data.prize.toLocaleString()}원</Text>
-
-          {/* 남은 시간 */}
-          <View className="flex-row items-center justify-center gap-1">
-            <Ionicons name="time-outline" size={16} color="white" />
-            <Text className="text-center font-bold text-mono-20 text-sm tabular-nums">{timeCount}</Text>
-          </View>
+    <View className="w-full bg-mono-30">
+      <View className="gap-4 bg-gelb-40 p-6">
+        {/* 타이틀 */}
+        <View className="flex-row items-center gap-2">
+          <Ionicons name="flower-outline" size={24} color="white" />
+          <Text className="font-extrabold text-mono-10 text-xl">LUCKYSTEPS</Text>
         </View>
 
-        <View className="h-px w-full bg-gelb-30" />
+        <View className="rounded-3xl bg-gelb-70">
+          <View className="mt-2 items-center gap-1 py-5">
+            {/* 회차 */}
+            <View className="flex-row items-center gap-2">
+              <Text className="text-center font-bold text-md text-mono-10">{data.round}회차</Text>
+              <Text className={`rounded-full px-2.5 py-1.5 font-bold text-mono-10 text-xs ${phaseMap[phase].color}`}>
+                {phaseMap[phase].label}
+              </Text>
+            </View>
 
-        <View className="flex-row items-center gap-2">
-          {/* TODO: Link */}
-          <View className="flex-1 flex-row items-center justify-center gap-2 border-gelb-30 border-r p-4">
-            <Ionicons name="trophy" size={20} color="#F5F5F5" />
-            <Text className="text-center font-bold text-mono-10 text-sm">명예의 전당</Text>
+            {/* 당첨금 */}
+            <Text className="text-center font-extrabold text-3xl text-mono-10">{data.prize.toLocaleString()}원</Text>
+
+            {/* 남은 시간 */}
+            <View className="flex-row items-center justify-center gap-1">
+              <Ionicons name="time-outline" size={16} color="white" />
+              <Text className="text-center font-bold text-mono-20 text-sm tabular-nums">{timeCount}</Text>
+            </View>
           </View>
-          {/* TODO: Link */}
-          <View className="flex-1 flex-row items-center justify-center gap-2 p-4">
-            <Ionicons name="cash" size={20} color="#F5F5F5" />
-            <Text className="text-center font-bold text-mono-10 text-sm">당첨금 안내</Text>
+
+          <View className="h-px w-full bg-gelb-30" />
+
+          <View className="flex-row items-center gap-2">
+            {/* TODO: Link */}
+            <View className="flex-1 flex-row items-center justify-center gap-2 border-gelb-30 border-r p-4">
+              <Ionicons name="trophy" size={20} color="#F5F5F5" />
+              <Text className="text-center font-bold text-mono-10 text-sm">명예의 전당</Text>
+            </View>
+            {/* TODO: Link */}
+            <View className="flex-1 flex-row items-center justify-center gap-2 p-4">
+              <Ionicons name="cash" size={20} color="#F5F5F5" />
+              <Text className="text-center font-bold text-mono-10 text-sm">당첨금 안내</Text>
+            </View>
           </View>
         </View>
       </View>

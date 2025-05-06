@@ -8,7 +8,7 @@ import { setAndroidNavigationBar } from '@/lib/android-navigation-bar';
 import { NAV_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/use-color-scheme';
 import { queryClient } from '@/utils/trpc';
-import React, { useRef } from 'react';
+import React from 'react';
 import { Platform } from 'react-native';
 
 const LIGHT_THEME: Theme = {
@@ -26,34 +26,23 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const hasMounted = useRef(false);
   const { colorScheme, isDarkColorScheme } = useColorScheme();
-  const [isColorSchemeLoaded, setIsColorSchemeLoaded] = React.useState(false);
 
-  useIsomorphicLayoutEffect(() => {
-    if (hasMounted.current) {
-      return;
-    }
-
+  React.useEffect(() => {
     if (Platform.OS === 'web') {
       // Adds the background color to the html element to prevent white background on overscroll.
       document.documentElement.classList.add('bg-background');
     }
     setAndroidNavigationBar(colorScheme);
-    setIsColorSchemeLoaded(true);
-    hasMounted.current = true;
-  }, []);
+  }, [colorScheme]);
 
-  if (!isColorSchemeLoaded) {
-    return null;
-  }
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
         <GestureHandlerRootView style={{ flex: 1 }}>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(tabs)" />
             {/* <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} /> */}
           </Stack>
         </GestureHandlerRootView>
@@ -61,6 +50,3 @@ export default function RootLayout() {
     </QueryClientProvider>
   );
 }
-
-const useIsomorphicLayoutEffect =
-  Platform.OS === 'web' && typeof window === 'undefined' ? React.useEffect : React.useLayoutEffect;
