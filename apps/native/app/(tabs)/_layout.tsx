@@ -1,10 +1,43 @@
 import { TabBarIcon } from '@/components/tabbar-icon';
-import BottomNavigationTabs from '@/features/shared/ui/BottomNavigationTabs';
 import { Ionicons } from '@expo/vector-icons';
 import { Link } from 'expo-router';
 import { Tabs } from 'expo-router/tabs';
+// import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { useCallback } from 'react';
 import { Pressable, Text, View } from 'react-native';
+
+const tabs = [
+  {
+    name: 'index',
+    href: '/',
+    icon: 'home-outline',
+    label: '홈',
+  },
+  {
+    name: 'my-logs',
+    href: '/my-logs',
+    icon: 'file-tray-full-outline',
+    label: '응모 내역',
+  },
+  {
+    name: 'action',
+    href: '/action',
+    icon: 'ticket-outline',
+    label: '응모하기',
+  },
+  {
+    name: 'draw-lottery',
+    href: '/draw-lottery',
+    icon: 'trophy-outline',
+    label: '추첨 결과',
+  },
+  {
+    name: 'settings',
+    href: '/settings',
+    icon: 'settings-outline',
+    label: '설정',
+  },
+] as const;
 
 const TabsLayout = () => {
   const handleActionPress = useCallback(() => {
@@ -12,7 +45,21 @@ const TabsLayout = () => {
     console.log('Action button pressed');
   }, []);
 
-  // return <BottomNavigationTabs />;
+  // return (
+  //   <Tabs>
+  //     <TabSlot />
+  //     <TabList className="mb-safe border">
+  //       {/* {tabs.map((tab) => (
+  //         <TabTrigger key={tab.name} name={tab.name} href={tab.href} className="flex-1">
+  //           <View className="w-full flex-col items-center justify-center gap-2 border py-1">
+  //             <TabBarIcon name={tab.icon} color="black" />
+  //             <Text className="text-xs">{tab.label}</Text>
+  //           </View>
+  //         </TabTrigger>
+  //       ))} */}
+  //     </TabList>
+  //   </Tabs>
+  // );
   return (
     <Tabs
       screenOptions={{
@@ -20,14 +67,7 @@ const TabsLayout = () => {
         tabBarActiveTintColor: 'black',
         tabBarStyle: {
           backgroundColor: 'white',
-          borderWidth: 1,
-          borderColor: 'red',
           height: 96,
-          // gap: 10,
-        },
-        tabBarItemStyle: {
-          borderWidth: 1,
-          borderColor: 'blue',
         },
         tabBarIconStyle: {
           marginBottom: 4,
@@ -56,31 +96,7 @@ const TabsLayout = () => {
         name="action"
         options={{
           title: '응모하기',
-          // tabBarLabel: '응모하기',
-          tabBarIcon: ({ color }) => <TabBarIcon name="ticket-outline" color="white" />,
-          tabBarItemStyle: {
-            // borderWidth: 1,
-            marginTop: -44,
-            // paddingBottom: 20,
-          },
-          tabBarIconStyle: {
-            backgroundColor: '#FA8B30',
-            width: 72,
-            height: 72,
-            borderRadius: 36,
-            borderWidth: 8,
-            borderColor: 'white',
-            marginBottom: 4,
-            // shadowColor: '#FA8B30',
-            // shadowOffset: { width: 0, height: -4 },
-            // shadowOpacity: 0.25,
-            // shadowRadius: 3.84,
-            // elevation: 3,
-          },
-          tabBarLabelStyle: {
-            // borderWidth: 1,
-            fontSize: 14,
-          },
+          tabBarIcon: ({ color }) => <TabBarIcon name="ticket-outline" color={color} />,
         }}
         listeners={{
           tabPress: (e) => {
