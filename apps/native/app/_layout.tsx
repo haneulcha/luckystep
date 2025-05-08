@@ -9,7 +9,7 @@ import { NAV_THEME } from '@/lib/constants';
 import { useColorScheme } from '@/lib/use-color-scheme';
 import { queryClient } from '@/utils/trpc';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -43,7 +43,8 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
-            {/* <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} /> */}
+            <Stack.Screen name="(tickets)" options={{ headerShown: true, headerBackVisible: true }} />
+            <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} />
           </Stack>
         </GestureHandlerRootView>
       </ThemeProvider>

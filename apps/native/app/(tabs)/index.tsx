@@ -4,16 +4,18 @@ import ScratchcardCard from '@/features/buy-tickets/components/ScratchcardCard';
 import SocialCard from '@/features/buy-tickets/components/SocialCard';
 import StepLotteryButtonsSlider from '@/features/buy-tickets/components/StepLotteryButtonsSlider';
 import TopBanner from '@/features/dashboard/components/TopBanner';
+import { colors } from '@/features/shared/const/colors';
 import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function App() {
   return (
-    // <SafeAreaView className="flex-1 bg-primary-foreground" edges={['top']}>
-    <ScrollView contentContainerClassName="flex-grow">
-      <SafeAreaView className="flex-1 bg-gelb-40" edges={['top']}>
-        <TopBanner />
-      </SafeAreaView>
+    <ScrollView
+      contentContainerClassName="flex-grow pb-10"
+      style={{
+        backgroundColor: colors.gelb[40],
+      }}
+    >
+      <TopBanner />
 
       <View className="gap-5 bg-mono-30 p-6">
         <ReferralCard />
@@ -23,6 +25,5 @@ export default function App() {
         <SocialCard />
       </View>
     </ScrollView>
-    // </SafeAreaView>
   );
 }

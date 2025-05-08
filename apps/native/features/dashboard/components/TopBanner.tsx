@@ -4,6 +4,7 @@ import duration from 'dayjs/plugin/duration';
 import utc from 'dayjs/plugin/utc';
 import { useMemo } from 'react';
 import { Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTimer } from 'react-timer-hook';
 
 dayjs.extend(utc);
@@ -53,6 +54,7 @@ const getTargetDate = (startDate: string, endDate: string): { phase: Phase; date
 };
 
 const TopBanner = () => {
+  const insets = useSafeAreaInsets();
   const { phase, date, diff } = getTargetDate(data.startDate, data.endDate);
   const { hours, minutes, seconds } = useTimer({
     expiryTimestamp: date.toDate(),
@@ -71,7 +73,12 @@ const TopBanner = () => {
 
   return (
     <View className="w-full bg-mono-30">
-      <View className="gap-4 bg-gelb-40 p-6">
+      <View
+        className="gap-4 bg-gelb-40 p-6"
+        style={{
+          paddingTop: insets.top,
+        }}
+      >
         {/* 타이틀 */}
         <View className="flex-row items-center gap-2">
           <Ionicons name="flower-outline" size={24} color="white" />

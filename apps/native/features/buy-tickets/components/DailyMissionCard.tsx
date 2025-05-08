@@ -38,8 +38,8 @@ const assets = {
   },
   ad: {
     icon: 'play-circle',
-    color: 'white',
-    bgColor: 'bg-lila-40',
+    color: 'black',
+    bgColor: 'bg-gelb-20',
   },
 } as const;
 

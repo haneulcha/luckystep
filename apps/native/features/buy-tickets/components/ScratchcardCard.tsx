@@ -1,5 +1,6 @@
 import Card from '@/features/shared/ui/Card';
 import ListItem from '@/features/shared/ui/ListItem';
+import { Link } from 'expo-router';
 import { Button, Text, View } from 'react-native';
 
 const ScratchcardCard = () => {
@@ -26,7 +27,17 @@ const ScratchcardCard = () => {
             },
           };
 
-          return <ListItem {...props} action={<Button {...props.button} />} key={id} />;
+          return (
+            <ListItem
+              {...props}
+              action={
+                <Link href="/(tickets)" asChild>
+                  <Button {...props.button} />
+                </Link>
+              }
+              key={id}
+            />
+          );
         })}
       </View>
     </Card>
@@ -47,7 +58,7 @@ const Speetto = {
     icon: {
       name: 'accessibility',
       color: 'white',
-      bgColor: 'bg-lila-50',
+      bgColor: 'bg-gelb-50',
     },
   },
 } as const;
