@@ -1,51 +1,88 @@
-import type React from 'react';
-import { Pressable, SafeAreaView, type StyleProp, StyleSheet, Text, View, type ViewStyle } from 'react-native';
-import Animated, {
-  interpolate,
-  type SharedValue,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import { useRef, useState } from 'react';
+import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import FlipCard from '@/features/buy-tickets/components/flip-card';
+
+const cards = Array.from({ length: 6 }, (_, index) => ({
+  id: index,
+  title: `Card ${index + 1}`,
+  description: `Card ${index + 1} description`,
+}));
 
 const RegularContent = () => {
   return (
     <View className="flex-1 rounded-lg bg-blue-500 p-4">
-      <Text className="text-white">Regular content ✨</Text>
+      <Text className="text-white">카드의 뒷면</Text>
     </View>
   );
 };
 
-const FlippedContent = () => {
+const FlippedContent = ({ card }: { card: (typeof cards)[number] }) => {
   return (
-    <View className="flex-1 rounded-lg bg-blue-500 p-4">
-      <Text className="text-white">Flipped content 🚀</Text>
+    <View className="flex-1 rounded-lg bg-gelb-30 p-4">
+      <Text className="text-white">{card.title}</Text>
     </View>
   );
 };
 
-export default function App() {
-  const isFlipped = useSharedValue(false);
+export default function TicketsScreen() {
+  const [isGathering, setIsGathering] = useState(false);
+  const containerRef = useRef<View>(null);
+  const cardRefs = useRef<View[]>([]);
 
-  const handlePress = () => {
-    isFlipped.value = !isFlipped.value;
+  const handleGatherCards = () => {
+    setIsGathering(!isGathering);
+  };
+
+  const getContainerSize = () => {
+    if (!containerRef.current) return { width: 0, height: 0 };
+    const size = { width: 0, height: 0 };
+    containerRef.current.measure((x, y, width, height) => {
+      size.width = width;
+      size.height = height;
+    });
+    return size;
+  };
+
+  const getCardPosition = (index: number) => {
+    const cardRef = cardRefs.current[index];
+    if (!cardRef) return { x: 0, y: 0 };
+
+    const position = { x: 0, y: 0 };
+    cardRef.measure((x, y) => {
+      position.x = x;
+      position.y = y;
+    });
+
+    return position;
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <FlipCard
-        isFlipped={isFlipped}
-        cardStyle={styles.flipCard}
-        FlippedContent={<FlippedContent />}
-        RegularContent={<RegularContent />}
-      />
-      <View style={styles.buttonContainer}>
-        <Pressable style={styles.toggleButton} onPress={handlePress}>
-          <Text style={styles.toggleButtonText}>Toggle card</Text>
-        </Pressable>
+    <SafeAreaView className="flex-1 border">
+      <View ref={containerRef} className="flex w-full flex-row flex-wrap justify-center gap-4 border px-4">
+        {cards.map((card, index) => (
+          <View
+            key={card.id}
+            ref={(ref) => {
+              if (ref) cardRefs.current[index] = ref;
+            }}
+          >
+            <FlipCard
+              cardStyle={styles.flipCard}
+              FlippedContent={<FlippedContent card={card} />}
+              RegularContent={<RegularContent />}
+              index={index}
+              isGathering={isGathering}
+              containerWidth={getContainerSize().width}
+              containerHeight={getContainerSize().height}
+              initialPosition={getCardPosition(index)}
+            />
+          </View>
+        ))}
       </View>
+      <Pressable onPress={handleGatherCards} className="mt-4">
+        <Text>카드 모으기</Text>
+      </Pressable>
     </SafeAreaView>
   );
 }
@@ -72,7 +109,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   flipCard: {
-    width: 170,
+    width: 120,
     height: 200,
     backfaceVisibility: 'hidden',
   },
