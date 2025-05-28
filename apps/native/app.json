@@ -15,7 +15,9 @@
       [
         "expo-sensors",
         {
-          "sensors": ["pedometer"],
+          "sensors": [
+            "pedometer"
+          ],
           "motionPermissions": "Allow $(PRODUCT_NAME) to access your device motion"
         }
       ],
@@ -39,11 +41,16 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.chadon.luckystep",
-      "appleTeamId": "3NUG7KWWZD"
+      "appleTeamId": "3NUG7KWWZD",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -51,6 +58,12 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.chadon.luckystep"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "1e789d27-0137-4c14-96cc-cb3ddbe1b5c2"
+      }
     }
   }
 }
