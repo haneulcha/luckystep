@@ -1,4 +1,4 @@
-import { Pressable } from 'react-native';
+import { Dimensions, Pressable, type View } from 'react-native';
 
 import Animated, {
   interpolate,
@@ -10,8 +10,14 @@ import Animated, {
   withDelay,
 } from 'react-native-reanimated';
 
-import { useEffect, useState } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+export type FlipCardHandle = {
+  toggleGatherCards: () => void;
+};
 
 type FlipCardProps = {
   cardStyle: StyleProp<ViewStyle>;
@@ -20,10 +26,6 @@ type FlipCardProps = {
   RegularContent: React.ReactNode;
   FlippedContent: React.ReactNode;
   index: number;
-  isGathering?: boolean;
-  containerWidth: number;
-  containerHeight: number;
-  initialPosition: { x: number; y: number };
 };
 
 const FlipCard = ({
@@ -33,17 +35,23 @@ const FlipCard = ({
   RegularContent,
   FlippedContent,
   index,
-  isGathering = false,
-  containerWidth,
-  containerHeight,
-  initialPosition,
-}: FlipCardProps) => {
+  ref,
+}: FlipCardProps & { ref: React.Ref<FlipCardHandle> }) => {
   const isFlipped = useSharedValue(false);
   const isDirectionX = direction === 'x';
   const position = useSharedValue({ x: 0, y: 0 });
   const isGathered = useSharedValue(false);
   const cardWidth = 120; // styles.flipCard의 width
   const cardHeight = 200; // styles.flipCard의 height
+  const pressableRef = useRef<View>(null);
+  const [initialPosition, setInitialPosition] = useState<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    pageX: number;
+    pageY: number;
+  } | null>(null);
 
   const regularCardAnimatedStyle = useAnimatedStyle(() => {
     const spinValue = interpolate(Number(isFlipped.value), [0, 1], [0, 180]);
@@ -75,23 +83,40 @@ const FlipCard = ({
     isFlipped.value = !isFlipped.value;
   };
 
+  // onLayout 이벤트로 레이아웃 완료 후 위치 측정
+  const handleLayout = (event: LayoutChangeEvent) => {
+    if (initialPosition) return;
+    if (pressableRef.current) {
+      pressableRef.current.measure(
+        (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
+          console.log('Measured position:', { x, y, width, height, pageX, pageY });
+          // x, y: 부모 컴포넌트 내에서의 상대적 위치
+          // pageX, pageY: 화면 전체에서의 절대적 위치
+          setInitialPosition({ x: pageX, y: pageY, width, height, pageX, pageY });
+        },
+      );
+    }
+  };
+
   // 카드가 모이는/펼쳐지는 애니메이션
   const toggleGatherCards = () => {
-    // 카드의 중심점을 기준으로 계산
-    const cardCenterX = initialPosition.x + cardWidth / 2;
-    const cardTopY = initialPosition.y;
+    if (!initialPosition) return;
 
-    // 컨테이너의 중심점
-    const containerCenterX = containerWidth / 2;
-    const containerTopY = 0;
+    // 카드의 중심점을 기준으로 계산 (절대 위치 사용)
+    const cardCenterX = initialPosition.pageX + cardWidth / 2;
+    const cardTopY = initialPosition.pageY;
 
-    // 목표 위치 계산
-    const targetX = isGathered.value ? 0 : containerCenterX - cardCenterX;
-    const targetY = isGathered.value ? 0 : containerTopY - cardTopY;
+    // 화면의 중앙점 (12시 방향을 위해 전체 화면 너비 사용)
+    const screenCenterX = SCREEN_WIDTH / 2;
+    const screenTopY = 0;
+
+    // 목표 위치 계산 (카드가 12시 방향 중앙에 오도록)
+    const targetX = isGathered.value ? 0 : screenCenterX - cardCenterX;
+    const targetY = isGathered.value ? 0 : screenTopY - cardTopY;
 
     position.value = withSequence(
       withDelay(
-        index * 100, // 각 카드마다 100ms 딜레이
+        index * 50, // 각 카드마다 100ms 딜레이
         withTiming({ x: targetX, y: targetY }, { duration: 500, easing: Easing.inOut(Easing.circle) }, (finished) => {
           if (finished) {
             isGathered.value = !isGathered.value;
@@ -101,13 +126,12 @@ const FlipCard = ({
     );
   };
 
-  // isGathering이 변경되면 카드들이 모이거나 펼쳐지기 시작
-  useEffect(() => {
-    toggleGatherCards();
-  }, [isGathering]);
+  useImperativeHandle(ref, () => ({
+    toggleGatherCards,
+  }));
 
   return (
-    <Pressable onPress={handlePress}>
+    <Pressable ref={pressableRef} onPress={handlePress} onLayout={handleLayout}>
       <Animated.View className="absolute z-0" style={[cardStyle, regularCardAnimatedStyle]}>
         {RegularContent}
       </Animated.View>

@@ -1,7 +1,7 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
-import FlipCard from '@/features/buy-tickets/components/flip-card';
+import FlipCard, { type FlipCardHandle } from '@/features/buy-tickets/components/flip-card';
 
 const cards = Array.from({ length: 6 }, (_, index) => ({
   id: index,
@@ -26,56 +26,44 @@ const FlippedContent = ({ card }: { card: (typeof cards)[number] }) => {
 };
 
 export default function TicketsScreen() {
-  const [isGathering, setIsGathering] = useState(false);
   const containerRef = useRef<View>(null);
-  const cardRefs = useRef<View[]>([]);
+  const cardRefs = useRef<FlipCardHandle[]>([]);
 
   const handleGatherCards = () => {
-    setIsGathering(!isGathering);
+    for (const card of cardRefs.current) {
+      card.toggleGatherCards();
+    }
   };
 
-  const getContainerSize = () => {
-    if (!containerRef.current) return { width: 0, height: 0 };
-    const size = { width: 0, height: 0 };
-    containerRef.current.measure((x, y, width, height) => {
-      size.width = width;
-      size.height = height;
-    });
-    return size;
-  };
+  useEffect(() => {
+    if (cardRefs.current.length === 0) return;
+    const timeoutId = setTimeout(() => {
+      handleGatherCards();
+    }, 1000);
 
-  const getCardPosition = (index: number) => {
-    const cardRef = cardRefs.current[index];
-    if (!cardRef) return { x: 0, y: 0 };
+    const id = setTimeout(() => {
+      handleGatherCards();
+    }, 2000);
 
-    const position = { x: 0, y: 0 };
-    cardRef.measure((x, y) => {
-      position.x = x;
-      position.y = y;
-    });
-
-    return position;
-  };
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(id);
+    };
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 border">
       <View ref={containerRef} className="flex w-full flex-row flex-wrap justify-center gap-4 border px-4">
         {cards.map((card, index) => (
-          <View
-            key={card.id}
-            ref={(ref) => {
-              if (ref) cardRefs.current[index] = ref;
-            }}
-          >
+          <View key={card.id}>
             <FlipCard
               cardStyle={styles.flipCard}
               FlippedContent={<FlippedContent card={card} />}
               RegularContent={<RegularContent />}
               index={index}
-              isGathering={isGathering}
-              containerWidth={getContainerSize().width}
-              containerHeight={getContainerSize().height}
-              initialPosition={getCardPosition(index)}
+              ref={(ref) => {
+                if (ref) cardRefs.current[index] = ref;
+              }}
             />
           </View>
         ))}
