@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import FlipCard, { type FlipCardHandle } from '@/features/buy-tickets/components/flip-card';
@@ -25,35 +25,37 @@ const FlippedContent = ({ card }: { card: (typeof cards)[number] }) => {
   );
 };
 
-export default function TicketsScreen() {
-  const containerRef = useRef<View>(null);
+const TicketsScreen = () => {
   const cardRefs = useRef<FlipCardHandle[]>([]);
+  const isAnimating = useRef(false);
 
-  const handleGatherCards = () => {
-    for (const card of cardRefs.current) {
-      card.toggleGatherCards();
+  const playCardAnimation = useCallback(async () => {
+    if (isAnimating.current || cardRefs.current.length === 0) return;
+    isAnimating.current = true;
+
+    try {
+      // 1. 카드 모으기
+      await Promise.all(cardRefs.current.map((card) => card.toggleGatherCards()));
+
+      // 2. 잠시 대기 (모인 상태 유지)
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      // 3. 카드 펼치기
+      await Promise.all(cardRefs.current.map((card) => card.toggleGatherCards()));
+    } finally {
+      isAnimating.current = false;
     }
-  };
+  }, []);
 
   useEffect(() => {
-    if (cardRefs.current.length === 0) return;
-    const timeoutId = setTimeout(() => {
-      handleGatherCards();
-    }, 1000);
-
-    const id = setTimeout(() => {
-      handleGatherCards();
-    }, 2000);
-
-    return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(id);
-    };
+    // 초기 마운트 후 애니메이션 실행
+    const timeoutId = setTimeout(playCardAnimation, 1000);
+    return () => clearTimeout(timeoutId);
   }, []);
 
   return (
     <SafeAreaView className="flex-1 border">
-      <View ref={containerRef} className="flex w-full flex-row flex-wrap justify-center gap-4 border px-4">
+      <View className="flex w-full flex-row flex-wrap justify-center gap-4 border px-4">
         {cards.map((card, index) => (
           <View key={card.id}>
             <FlipCard
@@ -61,19 +63,19 @@ export default function TicketsScreen() {
               FlippedContent={<FlippedContent card={card} />}
               RegularContent={<RegularContent />}
               index={index}
-              ref={(ref) => {
-                if (ref) cardRefs.current[index] = ref;
+              ref={(el) => {
+                if (el) cardRefs.current[index] = el;
               }}
             />
           </View>
         ))}
       </View>
-      <Pressable onPress={handleGatherCards} className="mt-4">
+      <Pressable onPress={playCardAnimation} className="mt-4">
         <Text>카드 모으기</Text>
       </Pressable>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -102,3 +104,5 @@ const styles = StyleSheet.create({
     backfaceVisibility: 'hidden',
   },
 });
+
+export default TicketsScreen;
