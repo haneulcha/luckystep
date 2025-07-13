@@ -1,33 +1,37 @@
-import { useCallback, useEffect, useRef } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { type LayoutChangeEvent, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import FlipCard, { type FlipCardHandle } from '@/features/buy-tickets/components/flip-card';
+import { useRouter } from 'expo-router';
 
-const cards = Array.from({ length: 6 }, (_, index) => ({
+const cards = Array.from({ length: 7 }, (_, index) => ({
   id: index,
-  title: `Card ${index + 1}`,
+  title: `${index + 1}`,
   description: `Card ${index + 1} description`,
 }));
 
 const RegularContent = () => {
   return (
-    <View className="flex-1 rounded-lg bg-blue-500 p-4">
-      <Text className="text-white">카드의 뒷면</Text>
+    <View className="flex flex-1 items-center justify-center rounded-lg bg-grun-50 p-4">
+      <Text className="text-4xl text-white">?</Text>
     </View>
   );
 };
 
 const FlippedContent = ({ card }: { card: (typeof cards)[number] }) => {
   return (
-    <View className="flex-1 rounded-lg bg-gelb-30 p-4">
-      <Text className="text-white">{card.title}</Text>
+    <View className="flex flex-1 items-center justify-center rounded-lg bg-gelb-30 p-4">
+      <Text className="text-center text-4xl text-white">{card.title}</Text>
     </View>
   );
 };
 
 const TicketsScreen = () => {
+  const router = useRouter();
   const cardRefs = useRef<FlipCardHandle[]>([]);
+  const [disabled, setDisabled] = useState(true);
   const isAnimating = useRef(false);
+  const containerRef = useRef<View>(null);
 
   const playCardAnimation = useCallback(async () => {
     if (isAnimating.current || cardRefs.current.length === 0) return;
@@ -44,8 +48,21 @@ const TicketsScreen = () => {
       await Promise.all(cardRefs.current.map((card) => card.toggleGatherCards()));
     } finally {
       isAnimating.current = false;
+      setDisabled(false);
     }
   }, []);
+
+  const handleFlipEnd = useCallback(
+    (id: number) => () => {
+      router.replace({
+        pathname: '/acquisition-result',
+        params: {
+          id,
+        },
+      });
+    },
+    [router],
+  );
 
   useEffect(() => {
     // 초기 마운트 후 애니메이션 실행
@@ -54,11 +71,13 @@ const TicketsScreen = () => {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 border">
-      <View className="flex w-full flex-row flex-wrap justify-center gap-4 border px-4">
+    <SafeAreaView className="flex-1">
+      <Text className="text-center text-4xl">골라 골라</Text>
+      <View ref={containerRef} className="mt-40 flex w-full flex-row flex-wrap justify-center gap-4 px-4">
         {cards.map((card, index) => (
           <View key={card.id}>
             <FlipCard
+              disabled={disabled}
               cardStyle={styles.flipCard}
               FlippedContent={<FlippedContent card={card} />}
               RegularContent={<RegularContent />}
@@ -66,13 +85,11 @@ const TicketsScreen = () => {
               ref={(el) => {
                 if (el) cardRefs.current[index] = el;
               }}
+              onFlipEnd={handleFlipEnd(card.id)}
             />
           </View>
         ))}
       </View>
-      <Pressable onPress={playCardAnimation} className="mt-4">
-        <Text>카드 모으기</Text>
-      </Pressable>
     </SafeAreaView>
   );
 };
@@ -99,8 +116,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   flipCard: {
-    width: 120,
-    height: 200,
+    width: 80,
+    height: 120,
     backfaceVisibility: 'hidden',
   },
 });

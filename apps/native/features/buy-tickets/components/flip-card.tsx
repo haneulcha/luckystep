@@ -11,7 +11,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 
-import { useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useImperativeHandle, useRef, useState } from 'react';
 import type { LayoutChangeEvent, StyleProp, ViewStyle } from 'react-native';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -21,15 +21,18 @@ export type FlipCardHandle = {
 };
 
 type FlipCardProps = {
+  disabled?: boolean;
   cardStyle: StyleProp<ViewStyle>;
   direction?: 'x' | 'y';
   duration?: number;
   RegularContent: React.ReactNode;
   FlippedContent: React.ReactNode;
   index: number;
+  onFlipEnd?: () => void;
 };
 
 const FlipCard = ({
+  disabled = false,
   cardStyle,
   direction = 'y',
   duration = 500,
@@ -37,22 +40,28 @@ const FlipCard = ({
   FlippedContent,
   index,
   ref,
+  onFlipEnd,
 }: FlipCardProps & { ref: React.Ref<FlipCardHandle> }) => {
   const isFlipped = useSharedValue(false);
   const isDirectionX = direction === 'x';
   const position = useSharedValue({ x: 0, y: 0 });
   const isGathered = useSharedValue(false);
-  const cardWidth = 120; // styles.flipCard의 width
-  const cardHeight = 200; // styles.flipCard의 height
+
   const pressableRef = useRef<View>(null);
   const [initialPosition, setInitialPosition] = useState<{
+    width: number;
+    height: number;
     pageX: number;
     pageY: number;
   } | null>(null);
 
   const regularCardAnimatedStyle = useAnimatedStyle(() => {
     const spinValue = interpolate(Number(isFlipped.value), [0, 1], [0, 180]);
-    const rotateValue = withTiming(`${spinValue}deg`, { duration, easing: Easing.inOut(Easing.circle) });
+    const rotateValue = withTiming(`${spinValue}deg`, { duration, easing: Easing.inOut(Easing.circle) }, (finished) => {
+      if (isFlipped.value && finished && onFlipEnd) {
+        runOnJS(onFlipEnd)();
+      }
+    });
 
     return {
       transform: [
@@ -77,6 +86,7 @@ const FlipCard = ({
   });
 
   const handlePress = () => {
+    if (isGathered.value || disabled) return;
     isFlipped.value = !isFlipped.value;
   };
 
@@ -86,7 +96,7 @@ const FlipCard = ({
     if (pressableRef.current) {
       pressableRef.current.measure(
         (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
-          setInitialPosition({ pageX, pageY });
+          setInitialPosition({ width, height, pageX, pageY });
         },
       );
     }
@@ -97,11 +107,11 @@ const FlipCard = ({
     if (!initialPosition) return Promise.resolve();
 
     return new Promise<void>((resolve) => {
-      const cardCenterX = initialPosition.pageX + cardWidth / 2;
+      const cardCenterX = initialPosition.pageX + initialPosition.width / 2;
       const cardTopY = initialPosition.pageY;
 
       const screenCenterX = SCREEN_WIDTH / 2;
-      const screenTopY = 0;
+      const screenTopY = initialPosition.pageY;
 
       const targetX = isGathered.value ? 0 : screenCenterX - cardCenterX;
       const targetY = isGathered.value ? 0 : screenTopY - cardTopY;
