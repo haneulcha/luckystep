@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { type LayoutChangeEvent, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 
 import FlipCard, { type FlipCardHandle } from '@/features/buy-tickets/components/flip-card';
+import FlippedCard from '@/features/buy-tickets/components/flipped-card';
 import { useRouter } from 'expo-router';
 
 const cards = Array.from({ length: 7 }, (_, index) => ({
@@ -14,14 +15,6 @@ const RegularContent = () => {
   return (
     <View className="flex flex-1 items-center justify-center rounded-lg bg-grun-50 p-4">
       <Text className="text-4xl text-white">?</Text>
-    </View>
-  );
-};
-
-const FlippedContent = ({ card }: { card: (typeof cards)[number] }) => {
-  return (
-    <View className="flex flex-1 items-center justify-center rounded-lg bg-gelb-30 p-4">
-      <Text className="text-center text-4xl text-white">{card.title}</Text>
     </View>
   );
 };
@@ -79,7 +72,7 @@ const TicketsScreen = () => {
             <FlipCard
               disabled={disabled}
               cardStyle={styles.flipCard}
-              FlippedContent={<FlippedContent card={card} />}
+              FlippedContent={<FlippedCard title={card.title} />}
               RegularContent={<RegularContent />}
               index={index}
               ref={(el) => {
