@@ -44,6 +44,7 @@ export default function RootLayout() {
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="(tickets)" options={{ headerShown: true, headerBackVisible: true }} />
+            <Stack.Screen name="(lotteries)" options={{ headerShown: true, headerBackVisible: true }} />
             <Stack.Screen name="modal" options={{ title: 'Modal', presentation: 'modal' }} />
           </Stack>
         </GestureHandlerRootView>

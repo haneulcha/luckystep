@@ -15,11 +15,17 @@ const TicketsLayout = () => {
           title: '복권 뽑기',
           headerBackVisible: true,
           headerBackButtonDisplayMode: 'minimal',
+          headerShadowVisible: false,
+          headerTitle: '',
         }}
       />
       <Stack.Screen
         name="acquisition-result"
-        options={{ title: '추첨 결과', headerShown: true, headerBackVisible: false }}
+        options={{
+          title: '추첨 결과',
+          headerShown: true,
+          headerBackVisible: false,
+        }}
       />
     </Stack>
   );

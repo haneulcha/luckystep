@@ -1,6 +1,6 @@
 import { TabBarIcon } from '@/components/tabbar-icon';
 import { Ionicons } from '@expo/vector-icons';
-import { Link } from 'expo-router';
+import { Link, router, useRouter } from 'expo-router';
 import { Tabs } from 'expo-router/tabs';
 // import { TabList, TabSlot, TabTrigger, Tabs } from 'expo-router/ui';
 import { useCallback } from 'react';
@@ -40,10 +40,12 @@ const tabs = [
 ] as const;
 
 const TabsLayout = () => {
+  const router = useRouter();
   const handleActionPress = useCallback(() => {
     // Your action here, like showing bottom sheet
     console.log('Action button pressed');
-  }, []);
+    router.push('/(lotteries)/pending');
+  }, [router]);
 
   // return (
   //   <Tabs>
@@ -91,7 +93,6 @@ const TabsLayout = () => {
           tabBarIcon: ({ color }) => <TabBarIcon name="file-tray-full-outline" color={color} />,
         }}
       />
-
       <Tabs.Screen
         name="action"
         options={{
