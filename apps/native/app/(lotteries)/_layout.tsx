@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 
 const LotteriesLayout = () => {
   return (
-    <Stack screenOptions={{ headerShown: true, headerBackVisible: true }}>
+    <Stack>
       <Stack.Screen
         name="index"
         options={{
@@ -17,12 +17,9 @@ const LotteriesLayout = () => {
       <Stack.Screen
         name="pending"
         options={{
-          title: '복권 뽑기',
-          headerShown: true,
+          title: '복권 생성 중',
           headerBackVisible: true,
           headerBackButtonDisplayMode: 'minimal',
-          headerShadowVisible: false,
-          headerTitle: '',
         }}
       />
       <Stack.Screen
